@@ -210,7 +210,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getQuakeDetails(marker.getTag().toString());
     }
 
-    private void getQuakeDetails(String toString) {
+    private void getQuakeDetails(String url) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                url, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                try {
+                    JSONObject properties = response.getJSONObject("properties");
+
+                    
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(jsonObjectRequest);
     }
 
     @Override
