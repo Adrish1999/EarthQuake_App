@@ -207,7 +207,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        
+        getQuakeDetails(marker.getTag().toString());
+    }
+
+    private void getQuakeDetails(String toString) {
     }
 
     @Override
