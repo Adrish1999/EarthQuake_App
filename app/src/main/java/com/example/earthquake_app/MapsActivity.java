@@ -216,9 +216,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onResponse(JSONObject response) {
 
+                String detailsUrl = "";
                 try {
                     JSONObject properties = response.getJSONObject("properties");
-                    JSONObject products = response.getJSONObject("products");
+                    JSONObject products = properties.getJSONObject("products");
                     JSONArray geoserve = products.getJSONArray("geoserve");
 
                     for(int i = 0;i < geoserve.length() ; i++)
@@ -227,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         JSONObject contentObj = geoserveObj.getJSONObject("contents");
                         JSONObject geoJsonObj = contentObj.getJSONObject("geoserve.json");
 
-                        String detailsUrl = geoJsonObj.getString("url");
+                        detailsUrl = geoJsonObj.getString("url");
                     }
 
                 } catch (JSONException e) {
