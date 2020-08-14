@@ -8,8 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
         <RelativeLayout
             android:layout_width="match_parent"
+            android:padding="25dp"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
@@ -26,6 +31,7 @@
             <TextView
                 android:id="@+id/popListTitle"
                 android:text="Surrounding Cities"
+                android:padding="8dp"
                 android:layout_below="@id/popTitle"
                 android:textSize="17sp"
                 android:layout_width="wrap_content"
@@ -65,5 +71,6 @@
                 android:layout_height="wrap_content"/>
 
             </RelativeLayout>
+        </androidx.cardview.widget.CardView>
     </ScrollView>
 </LinearLayout>

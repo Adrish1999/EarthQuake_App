@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.admin.SystemUpdateInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -238,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         detailsUrl = geoJsonObj.getString("url");
                     }
 
+                    getMoreDetails(detailsUrl);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -265,6 +267,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Button dismissButtonTop = (Button)view.findViewById(R.id.dismissPopTop);
                 TextView popList = (TextView)view.findViewById(R.id.popList);
                 WebView htmlPop = (WebView)view.findViewById(R.id.htmlWebview);
+
+                StringBuilder stringBuilder = new StringBuilder();
+                try {
+
+                    if(response.has("tectonicSummary") && response.getString("tectonicSummary") != null)
+                    {
+                        
+                    }
+                    JSONArray cities = response.getJSONArray("cities");
+
+                    for(int i = 0; i < cities.length(); i++)
+                    {
+                        JSONObject citiesObj = cities.getJSONObject(i);
+
+                        stringBuilder.append("City: "+ citiesObj.getString("name")
+                        +"\n"+"Distance: "+ citiesObj.getString("distance")
+                        +"\n"+citiesObj.getString("population"));
+
+                        stringBuilder.append("\n\n");
+                    }
+
+                    popList.setText(stringBuilder);
+
+                    dismissButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dismissButtonTop.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialogBuilder.setView(view);
+                    dialog = dialogBuilder.create();
+                    dialog.show();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
         }, new Response.ErrorListener() {
             @Override
