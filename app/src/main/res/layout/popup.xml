@@ -22,14 +22,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <Button
-                android:id="@+id/dismissPopTop"
-                android:layout_below="@id/popTitle"
-                android:layout_alignParentRight="true"
-                android:layout_alignBottom="@id/popTitle"
-                android:background="@android:drawable/ic_menu_close_clear_cancel"
-                android:layout_width="20dp"
-                android:layout_height="20dp"/>
 
             <TextView
                 android:id="@+id/popListTitle"
@@ -38,6 +30,14 @@
                 android:textSize="17sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/dismissPopTop"
+                android:layout_alignParentRight="true"
+                android:layout_alignBottom="@id/popListTitle"
+                android:background="@android:drawable/ic_menu_close_clear_cancel"
+                android:layout_width="20dp"
+                android:layout_height="20dp"/>
 
             <TextView
                 android:id="@+id/popList"
@@ -55,6 +55,12 @@
             </WebView>
 
             <Button
+                android:id="@+id/dismissPop"
+                android:textStyle="bold"
+                android:text="Close"
+                android:background="@color/colorAccent"
+                android:layout_below="@id/htmlWebview"
+                android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
