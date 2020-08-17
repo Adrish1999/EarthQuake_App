@@ -55,7 +55,7 @@ public class QuakesListActivity extends AppCompatActivity {
 
                         try {
                             JSONArray jsonArray = response.getJSONArray("features");
-                            for(int i = 0; i < jsonArray.length(); i++)
+                            for(int i = 0; i < Constants.LIMIT; i++)
                             {
                                 //Get properties object
                                 JSONObject properties = jsonArray.getJSONObject(i).getJSONObject("properties");
@@ -93,5 +93,6 @@ public class QuakesListActivity extends AppCompatActivity {
 
             }
         });
+        queue.add(jsonObjectRequest);
     }
 }
