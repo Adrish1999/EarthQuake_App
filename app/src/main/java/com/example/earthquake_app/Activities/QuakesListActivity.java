@@ -14,6 +14,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.earthquake_app.Model.EarthQuake;
 import com.example.earthquake_app.R;
+import com.example.earthquake_app.Util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +42,7 @@ public class QuakesListActivity extends AppCompatActivity {
         queue = Volley.newRequestQueue(this);
         arrayList = new ArrayList<>();
 
-        getAllQuakes(String url);
+        getAllQuakes(Constants.URL);
     }
     void getAllQuakes(String url)
     {
