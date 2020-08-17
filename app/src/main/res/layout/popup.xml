@@ -65,7 +65,7 @@
                 android:textStyle="bold"
                 android:text="Close"
                 android:background="@color/colorAccent"
-                android:layout_below="@id/htmlWebview"
+                android:layout_below="@id/popList"
                 android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

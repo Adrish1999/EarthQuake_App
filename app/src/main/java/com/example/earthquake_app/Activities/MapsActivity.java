@@ -1,4 +1,4 @@
-package com.example.earthquake_app;
+package com.example.earthquake_app.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.admin.SystemUpdateInfo;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -26,9 +26,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.earthquake_app.Model.EarthQuake;
+import com.example.earthquake_app.R;
 import com.example.earthquake_app.UI.CustomInfoWindow;
 import com.example.earthquake_app.Util.Constants;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -57,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private BitmapDescriptor[] iconColors;
+    private Button showListBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        showListBtn = (Button)findViewById(R.id.showListBtn);
+
+        showListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this,QuakesListActivity.class));
+            }
+        });
 
         iconColors = new BitmapDescriptor[]{
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
@@ -147,7 +159,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 Marker marker = mMap.addMarker(markerOptions);
                                 marker.setTag(earthQuake.getDetailLink());
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon),1));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat,lon)));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -222,11 +234,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-                mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                    .title("Hello"));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,8));
+//                mMap.addMarker(new MarkerOptions()
+//                                    .position(latLng)
+//                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+//                                    .title("Hello"));
+//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,8));
             }
         }
 
@@ -260,18 +272,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 try {
                     JSONObject properties = response.getJSONObject("properties");
                     JSONObject products = properties.getJSONObject("products");
-                    JSONArray geoserve = products.getJSONArray("geoserve");
-
-                    for(int i = 0;i < geoserve.length() ; i++)
+                    if(products.has("nearby-cities") && products.getString("nearby-cities") != null)
                     {
-                        JSONObject geoserveObj = geoserve.getJSONObject(i);
-                        JSONObject contentObj = geoserveObj.getJSONObject("contents");
-                        JSONObject geoJsonObj = contentObj.getJSONObject("geoserve.json");
+                        JSONArray nearbyCities = products.getJSONArray("nearby-cities");
 
-                        detailsUrl = geoJsonObj.getString("url");
+                        for (int i = 0; i < nearbyCities.length(); i++)
+                        {
+                            JSONObject nearbyCitiesObj = nearbyCities.getJSONObject(i);
+                            JSONObject contentObj = nearbyCitiesObj.getJSONObject("contents");
+                            JSONObject geoJsonObj = contentObj.getJSONObject("nearby-cities.json");
+
+                            detailsUrl = geoJsonObj.getString("url");
+                        }
+
+                        //Log.d("Details url: ",detailsUrl);
+                        getMoreDetails(detailsUrl);
                     }
-
-                    getMoreDetails(detailsUrl);
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(),"No More Extra Information Available For This Earthquake",Toast.LENGTH_LONG).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -287,10 +307,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void getMoreDetails(String url)
     {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                url, new Response.Listener<JSONObject>() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET,
+                url, new Response.Listener<JSONArray>() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(JSONArray response) {
 
                 dialogBuilder = new AlertDialog.Builder(MapsActivity.this);
                 View view = getLayoutInflater().inflate(R.layout.popup,null);
@@ -303,30 +323,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 StringBuilder stringBuilder = new StringBuilder();
                 try {
 
-                    if(response.has("tectonicSummary") && response.getString("tectonicSummary") != null)
-                    {
-                        JSONObject tectonic = response.getJSONObject("tectonicSummary");
+//                    if(response.has("tectonicSummary") && response.getString("tectonicSummary") != null)
+//                    {
+//                        JSONObject tectonic = response.getJSONObject("tectonicSummary");
+//
+//                        if(tectonic.has("text") && tectonic.getString("text") != null)
+//                        {
+//                            String text = tectonic.getString("text");
+//                            htmlPop.loadDataWithBaseURL(null,text,"text/html","UTF-8",null);
+//                        }
+//                    }
+//                    JSONArray cities = response.getJSONArray("cities");
 
-                        if(tectonic.has("text") && tectonic.getString("text") != null)
-                        {
-                            String text = tectonic.getString("text");
-                            htmlPop.loadDataWithBaseURL(null,text,"text/html","UTF-8",null);
-                        }
-                    }
-                    JSONArray cities = response.getJSONArray("cities");
-
-                    for(int i = 0; i < cities.length(); i++)
+                    for(int i = 0; i < response.length(); i++)
                     {
-                        JSONObject citiesObj = cities.getJSONObject(i);
+                        JSONObject citiesObj = response.getJSONObject(i);
 
                         stringBuilder.append("City: "+ citiesObj.getString("name")
-                        +"\n"+"Distance: "+ citiesObj.getString("distance")
-                        +"\n"+citiesObj.getString("population"));
+                        +"\n"+"Distance: "+ citiesObj.getString("distance"));
 
+                        if(citiesObj.getString("population") != null)
+                        {
+                            stringBuilder.append("\n");
+                            stringBuilder.append("Population: "+citiesObj.getString("population"));
+                        }
+
+                        //Log.d("More Details: ", String.valueOf(stringBuilder));
                         stringBuilder.append("\n\n");
                     }
 
                     popList.setText(stringBuilder);
+
+
+                    dialogBuilder.setView(view);
+                    dialog = dialogBuilder.create();
+                    dialog.show();
 
                     dismissButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -342,10 +373,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     });
 
-                    dialogBuilder.setView(view);
-                    dialog = dialogBuilder.create();
-                    dialog.show();
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -357,7 +384,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-        queue.add(jsonObjectRequest);
+        queue.add(jsonArrayRequest);
     }
 
     @Override
